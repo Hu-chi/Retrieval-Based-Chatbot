@@ -128,11 +128,11 @@ def build_biencoder_model(encoder_checkpoint_path, model_tokenizer, device, aggr
 
 
 def get_simple_dataloader(hparam):
-    # train_dataset = DoubanPairDataset(tokenizer, hparam.cache_dir, hparam.data_dir, "douban_pair", "train", True)
+    train_dataset = DoubanPairDataset(tokenizer, hparam.cache_dir, hparam.data_dir, "douban_pair", "train", True)
     valid_dataset = DoubanPairDataset(tokenizer, hparam.cache_dir, hparam.data_dir, "douban_pair", "dev", True)
     test_dataset = DoubanPairDataset(tokenizer, hparam.cache_dir, hparam.data_dir, "douban_pair", "test", True)
 
-    # train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset) if hparam.local_rank!=-1 else None
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset) if hparam.local_rank != -1 else None
     valid_sampler = torch.utils.data.distributed.DistributedSampler(
         valid_dataset, num_replicas=hparam.world_size, rank=hparam.local_rank
     ) if hparam.local_rank != -1 else None
@@ -140,13 +140,13 @@ def get_simple_dataloader(hparam):
         test_dataset, num_replicas=hparam.world_size, rank=hparam.local_rank
     ) if hparam.local_rank != -1 else None
 
-    # train_dataloader = DataLoader(train_dataset, batch_size=hparam.train_batch_size, shuffle=True,
-    #                               collate_fn=collate_bi_info, sampler=train_sampler)
+    train_dataloader = DataLoader(train_dataset, batch_size=hparam.train_batch_size, shuffle=True,
+                                  collate_fn=collate_bi_info, sampler=train_sampler)
     valid_dataloader = DataLoader(valid_dataset, batch_size=hparam.valid_batch_size, shuffle=False,
                                   collate_fn=collate_bi_info, sampler=valid_sampler)
     test_dataloader = DataLoader(test_dataset, batch_size=hparam.test_batch_size, shuffle=False,
                                  collate_fn=collate_bi_info, sampler=test_sampler)
-    return valid_dataloader, valid_dataloader, test_dataloader
+    return train_dataloader, valid_dataloader, test_dataloader
 
 
 if __name__ == '__main__':
