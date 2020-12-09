@@ -53,7 +53,7 @@ class BiEncoder(nn.Module):
             if responses_input_masks is None:
                 responses_input_masks = data['responses_input_masks']
 
-        if (context_input_ids and responses_input_ids) is None:
+        if context_input_ids is None or responses_input_ids is None:
             raise Exception("Lack context_input_ids and responses_input_ids!")
 
         if len(responses_input_ids.shape) != 3:

@@ -146,8 +146,6 @@ tags
 [._]*.un~
 
 ### Linux template
-*~
-
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
 
@@ -323,3 +321,13 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+.idea/.gitignore
+.idea/Retrieval-Based-Chatbot.iml
+.idea/codeStyles/
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+!/data/DoubanConversaionCorpus/
+!/checkpoint/
+!/temp/
