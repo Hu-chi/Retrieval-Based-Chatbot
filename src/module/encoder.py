@@ -30,7 +30,8 @@ class BasicBertEncoder(Encoder):
             elif aggregation == 'mean':
                 self.aggregation_layer = lambda x: torch.sum(x, dim=1)
             else:
-                raise Exception("Aggregation Layer doesn't support %s!" % aggregation)
+                raise Exception(
+                    "Aggregation Layer doesn't support %s!" % aggregation)
         elif isinstance(aggregation, Callable):
             self.aggregation_layer = aggregation
         else:
@@ -42,7 +43,9 @@ class BasicBertEncoder(Encoder):
             attention_mask: torch.Tensor,
             token_type_ids: torch.Tensor = None,
     ):
-        embedding = self._encoder(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)[0]
+        embedding = \
+            self._encoder(input_ids=input_ids, attention_mask=attention_mask,
+                          token_type_ids=token_type_ids)[0]
         return self.aggregation_layer(embedding)
 
     def resize_token_embeddings(self, token_size):

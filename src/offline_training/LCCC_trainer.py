@@ -10,9 +10,6 @@ from tqdm import tqdm
 
 from utils.common import setup_seed, get_bert_tokenizer
 from utils.data_process import load_data_to_device, get_simple_dataloader
-from utils.metric import calculate_candidates_ranking, logits_recall_at_k, \
-    mean_average_precision_fn, precision_at_one, \
-    logits_mrr
 # from apex.parallel import DistributedDataParallel as DDP
 from utils.modle_builder import build_biencoder_model
 
@@ -25,10 +22,9 @@ def train(model, optimizer, criterion, dataloader, valid_dataloader, hparam):
         for data in t:
             step += 1
             encoding = load_data_to_device(data, hparam.device)
-            labels = encoding['labels'].reshape(-1, 1)
-            score = model(encoding)
+            score = model.forward(encoding, cross_dot_product=True)
+            labels = torch.eye(score.size(0)).to(hparam.device)
             loss = criterion(score, labels)
-
             loss.backward()
             total_loss += loss.cpu().detach().item()
 
@@ -45,7 +41,7 @@ def train(model, optimizer, criterion, dataloader, valid_dataloader, hparam):
                     hparam.best_acc = acc
                     torch.save(model.state_dict(),
                                os.path.join(hparam.model_checkpoint,
-                                            "douban_pair_acc_%.5f" % acc))
+                                            "LCCC_base_pair_acc_%.5f" % acc))
 
 
 def valid(model, dataloader, hparam):
@@ -55,65 +51,16 @@ def valid(model, dataloader, hparam):
     with tqdm(dataloader) as t:
         for data in t:
             encoding = load_data_to_device(data, device=hparam.device)
-            labels = encoding['labels']
-            score = model(encoding).squeeze(1)
+            score = model.forward(encoding, cross_dot_product=True)
+            labels = torch.eye(score.size(0)).to(hparam.device)
             total_true += torch.sum((score > 0) == labels).detach().cpu().item()
-            total_num += score.size(0)
+            total_num += score.size(0) ** 2
             t.set_postfix(acc=(total_true / total_num))
     return total_true / total_num
 
 
-def test(model, dataloader, hparam):
-    model.eval()
-    step = 0.0
-    total_num = 0
-    total_true = 0.0
-
-    recall_k = 0
-    precision_1 = 0
-    mean_reciprocal_rank = 0
-    mean_average_precision = 0
-
-    with tqdm(dataloader) as t:
-        for data in t:
-            encoding = load_data_to_device(data, hparam.device)
-            labels = encoding['labels']
-            score = model(encoding).squeeze(1)
-
-            total_true += torch.sum(
-                (score > 0) & (labels > 0)).detach().cpu().item()
-            total_num += torch.sum((labels > 0)).detach().cpu().item()
-
-            score = score.cpu().detach().numpy()
-            labels = labels.cpu().numpy()
-
-            rank_by_pred, pos_index, _ = calculate_candidates_ranking(score,
-                                                                      labels,
-                                                                      10)
-
-            recall_k += logits_recall_at_k(pos_index)
-            precision_1 += precision_at_one(rank_by_pred)
-            mean_reciprocal_rank += logits_mrr(pos_index)
-            mean_average_precision += mean_average_precision_fn(pos_index)
-
-            step += sum(sum(pred) > 0 for pred in rank_by_pred)
-            if total_num != 0:
-                t.set_postfix(true_positive=total_true / total_num)
-
-    recall_k /= step
-    precision_1 /= step
-    mean_reciprocal_rank /= step
-    mean_average_precision /= step
-
-    for k, recall in enumerate(recall_k.tolist()):
-        print("Test data Recall@%d: %.5f" % (k, recall))
-    print("Test data Mean Reciprocal Rank: %.5f" % mean_reciprocal_rank)
-    print("Test data Precision@1: %.5f" % precision_1)
-    print("Test data Mean Average Precision: %.5f" % mean_average_precision)
-    return recall_k, mean_reciprocal_rank, precision_1, mean_average_precision
-
-
 if __name__ == '__main__':
+
     logger = logging.getLogger(__file__)
     parser = ArgumentParser()
     parser.add_argument("--encoder", type=str, default="bert",
@@ -154,7 +101,7 @@ if __name__ == '__main__':
                         help="Local rank for distributed training "
                              "(-1: not distributed)")
     parser.add_argument("--world_size", type=int, default=4,
-                        help="Num of distributed training)")
+                        help="num process for training")
     parser.add_argument("--seed", type=int, default=None,
                         help="set seed for model to get fixed param")
 
@@ -162,19 +109,8 @@ if __name__ == '__main__':
                         help="set seed for model to get fixed param")
     parser.add_argument("--num_worker", type=int, default=0,
                         help="num worker for dataloader")
-    parser.add_argument("--task_name", type=str, default="douban_pair",
+    parser.add_argument("--task_name", type=str, default="LCCC_base_pair",
                         help="num worker for dataloader")
-
-    # parser.add_argument("--fp16", type=str, default="",
-    #                     help="Set to O0, O1, O2 or O3 for fp16 training"
-    #                          " (see apex documentation)")
-    #
-    # parser.add_argument("--max_norm", type=float, default=1.0,
-    #                     help="Clipping gradient norm")
-    # parser.add_argument("--warmup_steps", type=int, default=5000,
-    #                     help="Warm up steps")
-    # parser.add_argument("--scheduler", type=str, default="noam",
-    #                     choices=['noam', 'linear'], help="method of optim")
 
     args = parser.parse_args()
     args.distributed = (args.local_rank != -1)
@@ -188,13 +124,14 @@ if __name__ == '__main__':
         tokenizer = get_bert_tokenizer(args.pretrain_checkpoint,
                                        add_tokens=['[EOT]'])
         two_tower_model = build_biencoder_model(
+            args=args,
             model_tokenizer=tokenizer,
-            args=args, aggregation='cls'
+            aggregation='cls'
         )
         if args.best_acc > 0:
             two_tower_model.load_state_dict(torch.load(os.path.join(
-                args.model_checkpoint, "%s_acc_%.5f" % (args.task_name,
-                                                        args.best_acc)
+                args.model_checkpoint,
+                "%s_acc_%.5f" % (args.task_name, args.best_acc)
             )))
     else:
         raise Exception
@@ -209,7 +146,7 @@ if __name__ == '__main__':
         )
         likelihood_criterion.cuda(args.local_rank)
         two_tower_model = nn.parallel.DistributedDataParallel(
-            module=two_tower_model,
+            two_tower_model,
             device_ids=[args.local_rank],
             output_device=args.local_rank,
             find_unused_parameters=True
@@ -217,18 +154,19 @@ if __name__ == '__main__':
 
     optimizer = AdamW(
         [{'params': two_tower_model.parameters(), 'initial_lr': args.lr}],
-        lr=args.lr)
-    douban_train_dataloader, douban_valid_dataloader, douban_test_dataloader = \
+        lr=args.lr
+    )
+    train_dataloader, valid_dataloader, test_dataloader = \
         get_simple_dataloader(
             args, tokenizer=tokenizer, task_name=args.task_name
         )
 
     if args.eval_before_start:
-        print(valid(two_tower_model, douban_valid_dataloader, args))
-        test(two_tower_model, douban_test_dataloader, args)
+        print(valid(two_tower_model, valid_dataloader, args))
+        print(valid(two_tower_model, test_dataloader, args))
 
     for i in range(args.n_epochs):
         train(two_tower_model, optimizer, likelihood_criterion,
-              douban_train_dataloader, douban_valid_dataloader, args)
-        print(valid(two_tower_model, douban_valid_dataloader, args))
-        test(two_tower_model, douban_test_dataloader, args)
+              train_dataloader, valid_dataloader, args)
+        print(valid(two_tower_model, valid_dataloader, args))
+        print(valid(two_tower_model, test_dataloader, args))

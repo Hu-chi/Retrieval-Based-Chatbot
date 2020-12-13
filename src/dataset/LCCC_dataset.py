@@ -1,3 +1,4 @@
+import json
 import pickle
 
 from tqdm import tqdm
@@ -5,58 +6,50 @@ from tqdm import tqdm
 from dataset.base_dataset import PairUtils, PairDataset
 
 
-class DoubanPairUtils(PairUtils):
+class LCCCPairUtils(PairUtils):
     def __init__(self, txt_path, tokenizer):
-        super(DoubanPairUtils, self).__init__(txt_path=txt_path,
-                                              tokenizer=tokenizer)
+        super(LCCCPairUtils, self).__init__(txt_path, tokenizer)
 
     def read_raw_file(self):
         with open(self.txt_path, "r", encoding="utf8") as fr_handle:
-            data = [line.strip() for line in fr_handle if len(line.strip()) > 0]
+            data = json.load(fr_handle)
 
         return data
 
     def make_examples_pkl(self, data, pkl_path):
         with open(pkl_path, "wb") as pkl_handle:
             for dialog in tqdm(data):
-                dialog_data = dialog.split("\t")
-                label = dialog_data[0]
                 utterances = [self.tokenizer.tokenize(utt) for utt in
-                              dialog_data[1:-1]]
-                response = self.tokenizer.tokenize(dialog_data[-1])
-
-                pickle.dump(
-                    dict(
-                        utterances=utterances,
-                        response=response,
-                        label=int(label),
-                    ),
-                    pkl_handle
-                )
+                              dialog[:-1]]
+                response = self.tokenizer.tokenize(dialog[-1])
+                pickle.dump(dict(utterances=utterances, response=response),
+                            pkl_handle)
 
         print(pkl_path, " save completes!")
 
 
-class DoubanPairDataset(PairDataset):
+class LCCCPairDataset(PairDataset):
     def __init__(
             self,
             tokenizer,
             cache_dir: str = None,
             data_dir: str = None,
-            task_name='douban_pair',
+            task_name='LCCC_pair',
             split: str = 'train',
             use_EOT=False,
-            max_sequence_len=512
+            max_sequence_len=512,
+            data_file_type='json'
     ):
-        super(DoubanPairDataset, self).__init__(
+        super(LCCCPairDataset, self).__init__(
             tokenizer=tokenizer,
-            pair_utils=DoubanPairUtils,
+            pair_utils=LCCCPairUtils,
             cache_dir=cache_dir,
             data_dir=data_dir,
             task_name=task_name,
             split=split,
             use_EOT=use_EOT,
-            max_sequence_len=max_sequence_len
+            max_sequence_len=max_sequence_len,
+            data_file_type=data_file_type
         )
 
     def __getitem__(self, index):
@@ -72,6 +65,5 @@ class DoubanPairDataset(PairDataset):
         current_feature = dict()
         current_feature["context"] = context
         current_feature["response"] = response
-        current_feature["label"] = float(curr_example["label"])
 
         return current_feature

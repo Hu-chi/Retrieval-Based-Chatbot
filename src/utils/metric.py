@@ -1,13 +1,20 @@
 import numpy as np
 
 
-def calculate_candidates_ranking(prediction, ground_truth, eval_candidates_num=10):
+def calculate_candidates_ranking(prediction, ground_truth,
+                                 eval_candidates_num=10):
     total_num_split = len(ground_truth) // eval_candidates_num  # batch size
 
     prediction_split = np.split(prediction, total_num_split)
     ground_truth_split = np.split(np.array(ground_truth), total_num_split)
-    origin_rank_split = np.split(np.tile(np.arange(0, eval_candidates_num), total_num_split), total_num_split)
-    stack_scores = np.stack((ground_truth_split, prediction_split, origin_rank_split), axis=-1)
+    origin_rank_split = np.split(
+        np.tile(np.arange(0, eval_candidates_num), total_num_split),
+        total_num_split
+    )
+    stack_scores = np.stack(
+        (ground_truth_split, prediction_split, origin_rank_split),
+        axis=-1
+    )
 
     rank_by_pred_l = []
     for i, stack_score in enumerate(stack_scores):
@@ -18,7 +25,8 @@ def calculate_candidates_ranking(prediction, ground_truth, eval_candidates_num=1
 
     pos_index = []
     for sorted_score in rank_by_pred:
-        curr_cand = [p_i for p_i, score in enumerate(sorted_score) if int(score) == 1]
+        curr_cand = [p_i for p_i, score in enumerate(sorted_score) if
+                     int(score) == 1]
         pos_index.append(curr_cand)
 
     return rank_by_pred, pos_index, stack_scores
