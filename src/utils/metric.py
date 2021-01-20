@@ -25,9 +25,9 @@ def calculate_candidates_ranking(prediction, ground_truth,
 
     pos_index = []
     for sorted_score in rank_by_pred:
-        curr_cand = [p_i for p_i, score in enumerate(sorted_score) if
-                     int(score) == 1]
-        pos_index.append(curr_cand)
+        pos_index.append([
+            p_i for p_i, score in enumerate(sorted_score) if int(score) == 1
+        ])
 
     return rank_by_pred, pos_index, stack_scores
 
@@ -47,25 +47,19 @@ def logits_recall_at_k(pos_index, k_list=None):
                     num_correct[i][j] += 1
         elif len(p_i) > 1:
             for j, k in enumerate(k_list):
-                all_recall_at_k = []
-
-                for cand_p_i in p_i:
-                    if cand_p_i + 1 <= k:
-                        all_recall_at_k.append(1)
-                    else:
-                        all_recall_at_k.append(0)
+                all_recall_at_k = [
+                    1 if cand_p_i + 1 <= k else 0 for cand_p_i in p_i
+                ]
                 num_correct[i][j] += np.mean(all_recall_at_k)
 
     return np.sum(num_correct, axis=0)
 
 
 def logits_mrr(pos_index):
-    mrr = []
-    for i, p_i in enumerate(pos_index):
-        if len(p_i) > 0 and p_i[0] >= 0:
-            mrr.append(1 / (p_i[0] + 1))
-        elif len(p_i) == 0:
-            mrr.append(0)  # no answer
+    mrr = [
+        1 / (p_i[0] + 1) if len(p_i) > 0 and p_i[0] >= 0 else 0
+        for i, p_i in enumerate(pos_index)
+    ]
 
     return np.sum(mrr)
 
@@ -73,10 +67,8 @@ def logits_mrr(pos_index):
 def precision_at_one(rank_by_pred):
     num_correct = [0] * rank_by_pred.shape[0]
     for i, sorted_score in enumerate(rank_by_pred):
-        for p_i, score in enumerate(sorted_score):
-            if p_i == 0 and int(score) == 1:
-                num_correct[i] = 1
-                break
+        if len(sorted_score) > 0 and int(sorted_score[0]) == 1:
+            num_correct[i] = 1
 
     return np.sum(num_correct)
 
@@ -85,11 +77,10 @@ def mean_average_precision_fn(pos_index):
     map = []
     for i, p_i in enumerate(pos_index):
         if len(p_i) > 0:
-            all_precision = []
-            for j, cand_p_i in enumerate(p_i):
-                all_precision.append((j + 1) / (cand_p_i + 1))
-            curr_map = np.mean(all_precision)
-            map.append(curr_map)
+            all_precision = [
+                (j + 1) / (cand_p_i + 1) for j, cand_p_i in enumerate(p_i)
+            ]
+            map.append(np.mean(all_precision))
         elif len(p_i) == 0:
             map.append(0)  # no answer
 

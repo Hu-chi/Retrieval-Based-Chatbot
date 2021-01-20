@@ -33,7 +33,8 @@ def collate_bi_info(batch, padding_value=0, batch_first=True):
     return data
 
 
-def get_simple_dataloader(hparam, tokenizer, task_name="douban_pair"):
+def get_simple_dataloader(hparam, tokenizer, task_name="douban_pair",
+                          type='all'):
     if task_name == 'douban_pair':
         OptionDataset = DoubanPairDataset
     elif task_name == 'LCCC_base_pair':
@@ -42,44 +43,61 @@ def get_simple_dataloader(hparam, tokenizer, task_name="douban_pair"):
         raise Exception(
             "Task %s doesn't have supported its dataset." % task_name
         )
-    train_dataset = OptionDataset(tokenizer, hparam.cache_dir,
-                                  hparam.data_dir, task_name, "train", True)
-    valid_dataset = OptionDataset(tokenizer, hparam.cache_dir,
-                                  hparam.data_dir, task_name, "valid", True)
-    test_dataset = OptionDataset(tokenizer, hparam.cache_dir,
-                                 hparam.data_dir, task_name, "test", True)
+    if type not in ['train', 'valid', 'test', 'all']:
+        raise Exception("type Error!")
+    if type in ['train', 'all']:
+        train_dataset = OptionDataset(tokenizer, hparam.cache_dir,
+                                      hparam.data_dir, task_name, "train", True)
+        train_sampler = torch.utils.data.distributed.DistributedSampler(
+            train_dataset, num_replicas=hparam.world_size,
+            rank=hparam.local_rank
+        ) if hparam.local_rank != -1 else None
+        train_dataloader = DataLoader(
+            train_dataset, batch_size=hparam.train_batch_size,
+            shuffle=False if hparam.distributed else True,
+            collate_fn=collate_bi_info,
+            sampler=train_sampler,
+            num_workers=hparam.num_worker
+        )
 
-    train_sampler = torch.utils.data.distributed.DistributedSampler(
-        train_dataset, num_replicas=hparam.world_size, rank=hparam.local_rank
-    ) if hparam.local_rank != -1 else None
-    valid_sampler = torch.utils.data.distributed.DistributedSampler(
-        valid_dataset, num_replicas=hparam.world_size, rank=hparam.local_rank
-    ) if hparam.local_rank != -1 else None
-    test_sampler = torch.utils.data.distributed.DistributedSampler(
-        test_dataset, num_replicas=hparam.world_size, rank=hparam.local_rank
-    ) if hparam.local_rank != -1 else None
+    if type in ['valid', 'all']:
+        valid_dataset = OptionDataset(tokenizer, hparam.cache_dir,
+                                      hparam.data_dir, task_name, "valid", True)
+        valid_sampler = torch.utils.data.distributed.DistributedSampler(
+            valid_dataset, num_replicas=hparam.world_size,
+            rank=hparam.local_rank
+        ) if hparam.local_rank != -1 else None
+        valid_dataloader = DataLoader(
+            valid_dataset,
+            batch_size=hparam.valid_batch_size,
+            shuffle=False,
+            collate_fn=collate_bi_info,
+            sampler=valid_sampler,
+            num_workers=hparam.num_worker
+        )
 
-    train_dataloader = DataLoader(
-        train_dataset, batch_size=hparam.train_batch_size,
-        shuffle=False if hparam.distributed else True,
-        collate_fn=collate_bi_info,
-        sampler=train_sampler,
-        num_workers=hparam.num_worker
-    )
-    valid_dataloader = DataLoader(
-        valid_dataset,
-        batch_size=hparam.valid_batch_size,
-        shuffle=False,
-        collate_fn=collate_bi_info,
-        sampler=valid_sampler,
-        num_workers=hparam.num_worker
-    )
-    test_dataloader = DataLoader(
-        test_dataset,
-        batch_size=hparam.test_batch_size,
-        shuffle=False,
-        collate_fn=collate_bi_info,
-        sampler=test_sampler,
-        num_workers=hparam.num_worker
-    )
+    if type in ['test', 'all']:
+        test_dataset = OptionDataset(tokenizer, hparam.cache_dir,
+                                     hparam.data_dir, task_name, "test", True)
+
+        test_sampler = torch.utils.data.distributed.DistributedSampler(
+            test_dataset, num_replicas=hparam.world_size, rank=hparam.local_rank
+        ) if hparam.local_rank != -1 else None
+
+        test_dataloader = DataLoader(
+            test_dataset,
+            batch_size=hparam.test_batch_size,
+            shuffle=False,
+            collate_fn=collate_bi_info,
+            sampler=test_sampler,
+            num_workers=hparam.num_worker
+        )
+
+    if type == 'train':
+        return train_dataloader
+    if type == 'valid':
+        return valid_dataloader
+    if type == 'test':
+        return test_dataloader
+
     return train_dataloader, valid_dataloader, test_dataloader

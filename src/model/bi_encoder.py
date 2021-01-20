@@ -24,11 +24,14 @@ class BiEncoder(nn.Module):
     def get_embedding(self, input_ids, input_masks, mode=None, norm=False):
         if mode not in ['context', 'response']:
             raise Exception(
-                "Can't get %s Embedding, please try in [context, response]!" % mode)
+                "Can't get %s Embedding, please try in [context, response]!"
+                % mode
+            )
 
-        encoder = self._context_encoder if mode == 'context' else self._response_encoder
-        u_embedding = encoder.get_sentence_embedding(input_ids,
-                                                     input_masks)  # [batch, dim]
+        encoder = self._context_encoder if mode == 'context' \
+            else self._response_encoder
+        u_embedding = encoder.get_sentence_embedding(
+            input_ids, input_masks)  # [batch, dim]
         if norm:
             u_embedding = u_embedding / torch.norm(u_embedding, dim=-1,
                                                    keepdim=True)  # norm
@@ -91,9 +94,10 @@ class BiEncoder(nn.Module):
             dot_product = torch.mm(context_vec,
                                    responses_vec.squeeze(1).T)  # [batch, batch]
         else:
-            dot_product = torch.bmm(responses_vec,
-                                    context_vec.unsqueeze(2)).squeeze(
-                2)  # [batch, k]
+            dot_product = torch.bmm(
+                responses_vec,
+                context_vec.unsqueeze(2)
+            ).squeeze(2)  # [batch, k]
 
         return dot_product
 

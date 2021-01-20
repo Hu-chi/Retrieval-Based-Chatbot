@@ -112,6 +112,11 @@ if __name__ == '__main__':
     parser.add_argument("--task_name", type=str, default="LCCC_base_pair",
                         help="num worker for dataloader")
 
+    parser.add_argument("--epoch_id", type=int, default=0,
+                        help="start epoch id")
+    parser.add_argument("--max_norm", type=float, default=None,
+                        help="Clipping gradient norm")
+
     args = parser.parse_args()
     args.distributed = (args.local_rank != -1)
 
@@ -121,8 +126,10 @@ if __name__ == '__main__':
     likelihood_criterion = nn.BCEWithLogitsLoss().to(args.device)
 
     if args.encoder == 'bert':
-        tokenizer = get_bert_tokenizer(args.pretrain_checkpoint,
-                                       add_tokens=['[EOT]'])
+        tokenizer = get_bert_tokenizer(
+            args.pretrain_checkpoint,
+            add_tokens=['[EOT]']
+        )
         two_tower_model = build_biencoder_model(
             args=args,
             model_tokenizer=tokenizer,

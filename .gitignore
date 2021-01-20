@@ -328,6 +328,6 @@ Temporary Items
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
-!/data/DoubanConversaionCorpus/
-!/checkpoint/
-!/temp/
+/data/
+/temp/
+/checkpoint/

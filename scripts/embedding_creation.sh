@@ -6,18 +6,15 @@ export PYTHONPATH=${PYTHONPATH}:$dir/src:$dir
 #python -m torch.distributed.launch --nproc_per_node=1 --master_port 29501
 
 CUDA_VISIBLE_DEVICES=1 \
-  python \
-  src/offline_training/douban_trainer.py \
+  python src/offline_training/embedding_corpus_creator.py \
   --encoder bert \
   --pretrain_checkpoint checkpoint/bert_base_chinese \
-  --data_dir data/DoubanConversaionCorpus \
-  --cache_dir data/cache/douban \
-  --model_checkpoint checkpoint/douban_pair_checkpoint \
-  --gradient_accumulation_steps 2 \
+  --data_dir data/LCCC-base-split \
+  --cache_dir data/cache/LCCC_base \
+  --model_checkpoint checkpoint/LCCC_base_pair_checkpoint \
   --train_batch_size 3 \
   --valid_batch_size 3 \
-  --world_size 3 \
   --num_worker 2 \
   --seed 42 \
-#  --eval_before_start \
-#  --best_acc 0.81504 \
+  --best_acc 0.87845 \
+  --task_name LCCC_base_pair \
