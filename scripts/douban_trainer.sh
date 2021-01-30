@@ -1,7 +1,7 @@
 dir=$(dirname "$(dirname "$(readlink -f "$0")")")
 cd "$dir" || exit
 echo "当前目录: $PWD"
-export PYTHONPATH=${PYTHONPATH}:$dir/src:$dir
+export PYTHONPATH="$PYTHONPATH:$dir/src:$dir"
 
 #python -m torch.distributed.launch --nproc_per_node=1 --master_port 29501
 
