@@ -43,3 +43,7 @@ faiss on GPU only support K-ANN(K<=2048), so we didn't test R5000@K and R8192@K 
 
 One context on ANN in 500K candidate set cost time is less than 10ms on GPU(250ms on CPU). A batch of contexts will save more time for the power of faiss.
 
+## Ancillary Materials
+
+1. report: https://docs.qq.com/pdf/DRElSVVhLQmdyV2Fj
+
