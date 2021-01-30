@@ -55,14 +55,14 @@
 % \begin{frame} {Multi-turn Response Selection问题定义}
 % 假设有数据集 $\mathcal{D}=\left\{\left(y_{i}, s_{i}, r_{i}\right)\right\}_{i=1}^{N},$ 其中 $s_{i}$ 对话上下文文本信息, $r_{i}$ 是一个回复的候选项,  $y_{i} \in\{0,1\}$ 是标签. $s_{i}=\left\{u_{i, 1}, \ldots, u_{i, n_{i}}\right\}$ 其中 $\left\{u_{i, k}\right\}_{k=1}^{n_{i}}$ 是每一轮的语句。
 % \\
-% $\forall k, u_{i, k}=\left(w_{u_{i, k}, 1}, \ldots, w_{u_{i, k}, j}, \ldots, w_{u_{i, k}, n_{u_{i}, k}}\right)$ 其中 $w_{u_{i, k}, j}$ 是第 $j$ 个词在 $u_{i, k}$ 中且， $n_{u_{i}, k}$ 是 $u_{i, k} $的长度. 同样的, $r_{i}=\left(w_{r_{i}, 1}, \ldots, w_{r_{i}, j}, \ldots, w_{r_{i}, n_{r_{i}}}\right)$ 其中 $w_{r_{i}, j}$ 是第 $j$ 个词在 $r_{i}$ 中且 $n_{r_{i}}$ 是回复语句的长度. $y_{i}=1$ 则说明 $r_{i}$ 是一个正确的回复对于 $s_{i}$, 否则 $y_{i}=0 $。 
+% $\forall k, u_{i, k}=\left(w_{u_{i, k}, 1}, \ldots, w_{u_{i, k}, j}, \ldots, w_{u_{i, k}, n_{u_{i}, k}}\right)$ 其中 $w_{u_{i, k}, j}$ 是第 $j$ 个词在 $u_{i, k}$ 中且， $n_{u_{i}, k}$ 是 $u_{i, k} $的长度. 同样的, $r_{i}=\left(w_{r_{i}, 1}, \ldots, w_{r_{i}, j}, \ldots, w_{r_{i}, n_{r_{i}}}\right)$ 其中 $w_{r_{i}, j}$ 是第 $j$ 个词在 $r_{i}$ 中且 $n_{r_{i}}$ 是回复语句的长度. $y_{i}=1$ 则说明 $r_{i}$ 是一个正确的回复对于 $s_{i}$, 否则 $y_{i}=0 $。
 % \\
 % 我们的目标是学习一个匹配模型 $g(\cdot, \cdot)$ 在数据集 $\mathcal{D}$ 上, 并且对于任何新的匹配对 $(s, r)$, 可以测量他们的匹配程度$g(s, r)$. 根据 $g(s, r),$ 我们可以根据 $s$ 的候选项进行排序 并且选择一个正确的作为回复。
 % \end{frame}
 
 \subsection{Problem Formalization}
 \begin{frame} {Multi-turn Response Selection Problem Formalization}
-Suppose that we have a data set $\mathcal{D}=\left\{\left(y_{i}, s_{i}, r_{i}\right)\right\}_{i=1}^{N},$ where $s_{i}$ is a conversation context, $r_{i}$ is a response candidate, and $y_{i} \in\{0,1\}$ is a label. $s_{i}=\left\{u_{i, 1}, \ldots, u_{i, n_{i}}\right\}$ where $\left\{u_{i, k}\right\}_{k=1}^{n_{i}}$ are utterances. $y_{i}=1$ if $r_{i}$ is a proper response to $s_{i}$, otherwise $y_{i}=0 .$ 
+Suppose that we have a data set $\mathcal{D}=\left\{\left(y_{i}, s_{i}, r_{i}\right)\right\}_{i=1}^{N},$ where $s_{i}$ is a conversation context, $r_{i}$ is a response candidate, and $y_{i} \in\{0,1\}$ is a label. $s_{i}=\left\{u_{i, 1}, \ldots, u_{i, n_{i}}\right\}$ where $\left\{u_{i, k}\right\}_{k=1}^{n_{i}}$ are utterances. $y_{i}=1$ if $r_{i}$ is a proper response to $s_{i}$, otherwise $y_{i}=0 .$
 \\
 Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{D},$ and thus for any new context-response pair $(s, r), g(s, r)$ measures their matching degree. According to $g(s, r),$ we can rank candidates for $s$ and select a proper one as its response.
 \end{frame}
@@ -78,11 +78,11 @@ Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{
             \item 2015-2019 PolyAI-Reddit Train/Test: 654M/72M
         \end{itemize}
         \item Chinese
-        \begin{itemize} 
+        \begin{itemize}
             \item 2016 Douban Train/Valid/Test: 1M/50K/10K
             \item 2020 LCCC Base/Large: 6M/12M
         \end{itemize}
-        
+
     \end{itemize}
 \end{frame}
 
@@ -107,9 +107,9 @@ Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{
 \begin{frame}{Difference between Bi-Encoder and Cross-Encoder}
     \begin{itemize}
         \item Since the candidate encodings are independent of the input, Bi-encoders are very \textbf{efficient during evaluation}. (cache the representations of a large, fixed candidate set)
-        
-        \item  Urbanek et al. (2019) finds that Cross-encoders \textbf{perform better} while the performance gains come at a steep computational cost. 
-        
+
+        \item  Urbanek et al. (2019) finds that Cross-encoders \textbf{perform better} while the performance gains come at a steep computational cost.
+
         \begin{tabular}{|c|c|c|c|c|}
 \hline & \multicolumn{4}{|c|} { Scoring time (ms) } \\
 \hline & \multicolumn{2}{|c|} { CPU } & \multicolumn{2}{c|} { GPU } \\
@@ -119,14 +119,14 @@ Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{
 \hline Cross-encoder & $21.7 \mathrm{k}$ & $2.2 \mathrm{M}^{*}$ & $2.6 \mathrm{k}$ & $266 \mathrm{k}^{*}$ \\
 \hline
 \end{tabular}
-        
+
     \end{itemize}
 \end{frame}
 
 \subsection{Recent Work Brief Introduction}
 \begin{frame}{Recent Work Brief Introduction}
     \begin{itemize}
-        \item ICLR 2020 Poly-Encoder 
+        \item ICLR 2020 Poly-Encoder
             \begin{itemize}
                 \item Pre-trained on 174 million examples extracted from Reddit with new strategies
                 \item Propose Poly-Encoder which aims to get the best of both worlds from the Bi- and Cross-encoder
@@ -157,7 +157,7 @@ Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{
 %     Problems:
 %     \begin{itemize}
 %         \item How to construct candidates whitelist?
-%         \item 
+%         \item
 %     \end{itemize}
 % \end{frame}
 \subsection{Core Problems}
@@ -178,7 +178,7 @@ Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{
             \item I'm new to training on large scale data. How to make training effective, affordable, and quick?
             \item Training trick on Chinese dataset
         \end{itemize}
-        
+
 \end{frame}
 
 % \subsection{Whitelist(Candidates) Generation}
@@ -190,7 +190,7 @@ Our goal is to \textbf{learn a matching model $g(\cdot, \cdot)$} with $\mathcal{
             \item Frequency-Based Method: select most common agent responses, after accounting for minor variations in capitalization, punctuation, and whitespace.
             \item Clustering-Based Method: encoded all agent responses using response encoder $f_r$ and then used k-means clustering to cluster the responses. Then selected the most common response from each cluster to create the whitelists.
         \end{itemize}
-        
+
         \item Cross-Encoder:  select the top 100 candidates (recall optimization)
         \begin{itemize}
             \item Use Bi-Encoder to select top 100 candidates
@@ -247,7 +247,7 @@ Clustering 1K & 0.331 & 0.542 & 0.650 & 0.782 & 49.26 \\
 \begin{frame}{Embedding-based Retrieval in Facebook Search}
     \begin{itemize}
     \item embedding-based retrieval: use embeddings to represent query and documents, and then convert the retrieval problem into a nearest neighbor (NN) search problem in the embedding space.
-        \begin{itemize} 
+        \begin{itemize}
             \item Unified Embedding Model to Learn Query Embedding and Document Embedding
             \item employed Faiss library to quantize the vectors(coarse quantization or  product quantization)
             \item deployed an inverted index based ANN (approximate near neighbor) search algorithms
@@ -265,12 +265,12 @@ Clustering 1K & 0.331 & 0.542 & 0.650 & 0.782 & 49.26 \\
 \begin{itemize}
     \item To address the latency problem brought by the advanced NLP techniques, this paper proposes a novel language representation model for efficient retrieval(supporting ANN search), called TwinBERT.
     \begin{itemize}
-        \item  The model has twin-structured BERT-like encoders to encode the query and document respectively and a crossing layer to combine the two embeddings and produce a similarity score. 
+        \item  The model has twin-structured BERT-like encoders to encode the query and document respectively and a crossing layer to combine the two embeddings and produce a similarity score.
         \item The model was trained following the teacher-student framework. (Knowledge Distillation)
         \item For inference time, the average time cost on CPU over 1,000 random queries was only around 20 milliseconds for scoring 100 documents.
     \end{itemize}
 \end{itemize}
-    
+
 \end{frame}
 
 \section{Next Work}
@@ -294,10 +294,10 @@ Clustering 1K & 0.331 & 0.542 & 0.650 & 0.782 & 49.26 \\
 \begin{frame}[allowframebreaks]
     \bibliography{ref}
     \tiny\bibliographystyle{alpha}
-    
-    \begin{thebibliography}{10} 
+
+    \begin{thebibliography}{10}
     \bibitem{ref0} Wu Y, Wu W, Xing C, et al. A sequential matching framework for multi-turn response selection in retrieval-based chatbots[J]. Computational Linguistics, 2019, 45(1): 163-197.
-    \bibitem{ref1} Swanson K, Yu L, Fox C, et al. Building a Production Model for Retrieval-Based Chatbots[J]. arXiv preprint arXiv:1906.03209, 2019. 
+    \bibitem{ref1} Swanson K, Yu L, Fox C, et al. Building a Production Model for Retrieval-Based Chatbots[J]. arXiv preprint arXiv:1906.03209, 2019.
     \bibitem{ref2} Chen Q, Wang W. Sequential attention-based network for noetic end-to-end response selection[J]. arXiv preprint arXiv:1901.02609, 2019.
     \bibitem{ref3} Ganhotra J, Patel S S, Fadnis K. Knowledge-incorporating ESIM models for response selection in retrieval-based dialog systems[J]. arXiv preprint arXiv:1907.05792, 2019.
     \bibitem{ref4} Humeau S, Shuster K, Lachaux M A, et al. Poly-encoders: Transformer architectures and pre-training strategies for fast and accurate multi-sentence scoring[J]. arXiv preprint arXiv:1905.01969, 2019.
@@ -314,7 +314,7 @@ Clustering 1K & 0.331 & 0.542 & 0.650 & 0.782 & 49.26 \\
         \item The new Ubuntu Dialogue Corpus consists of
 almost one million two-person conversations extracted from the Ubuntu chat logs1
 , used to receive
-technical support for various Ubuntu-related problems. 
+technical support for various Ubuntu-related problems.
 
     \end{itemize}
     \begin{center} \tiny
@@ -336,7 +336,7 @@ technical support for various Ubuntu-related problems.
 \hline
 \end{tabular}
     \end{center}
-    
+
 \end{frame}
 
 \begin{frame}{Dataset DSTC7-Ubuntu}
@@ -348,7 +348,7 @@ technical support for various Ubuntu-related problems.
 \item Subtask 4\ 100 candidates, including $0-1$ correct options.
 \item Subtask 5 The same as subtask $1,$ but with access to external information.
     \end{itemize}
-    
+
     \begin{center}\tiny
         \begin{tabular}{lrr}
 \hline Property & Advising & Ubuntu \\
@@ -390,32 +390,32 @@ I like to eat cheetos & I love watching Game of Thrones \\
 \tiny
 [PERSON 1:] Hi
 
-[PERSON 2:] Hello ! How are you today ? 
+[PERSON 2:] Hello ! How are you today ?
 
-[PERSON 1:] I am good thank you , how are you. 
+[PERSON 1:] I am good thank you , how are you.
 
-[PERSON 2:] Great, thanks ! My children and I were just about to watch Game of Thrones. 
+[PERSON 2:] Great, thanks ! My children and I were just about to watch Game of Thrones.
 
-[PERSON 1:] Nice ! How old are your children? 
+[PERSON 1:] Nice ! How old are your children?
 
-[PERSON 2:] I have four that range in age from 10 to $21 .$ You? 
+[PERSON 2:] I have four that range in age from 10 to $21 .$ You?
 
-[PERSON 1:] I do not have children at the moment. 
+[PERSON 1:] I do not have children at the moment.
 
-[PERSON 2:] That just means you get to keep all the popcorn for yourself. 
+[PERSON 2:] That just means you get to keep all the popcorn for yourself.
 
-[PERSON 1:] And Cheetos at the moment! 
+[PERSON 1:] And Cheetos at the moment!
 
-[PERSON 2:] Good choice. Do you watch Game of Thrones? 
+[PERSON 2:] Good choice. Do you watch Game of Thrones?
 
-[PERSON 1:] No, I do not have much time for TV. 
+[PERSON 1:] No, I do not have much time for TV.
 
 [PERSON 2:] I usually spend my time painting: but, I love the show.
 
 \end{frame}
 
 \begin{frame}{Dataset Reddit}
-Reddit conversations are threaded. Each post may have multiple top-level comments, and every comment may have multiple children comments written in response. In processing, each Reddit thread is used to generate a set of examples. 
+Reddit conversations are threaded. Each post may have multiple top-level comments, and every comment may have multiple children comments written in response. In processing, each Reddit thread is used to generate a set of examples.
 
 The data from 2015 to 2018 inclusive consists of
 3,680,746,776 comments, in 256,095,216 threads.
@@ -426,7 +426,7 @@ In total, 727,013,715 Tensorflow examples are created from this data.
 
 \begin{frame}{Dataset Douban}
  open domain conversation
- 
+
  \begin{tabular}{c|c|c|c}
 \hline & train & val & test \\
 \hline # context-response pairs & $1 \mathrm{M}$ & $50 \mathrm{k}$ & $10 \mathrm{k}$ \\
@@ -445,7 +445,7 @@ In total, 727,013,715 Tensorflow examples are created from this data.
  The quality of our dataset is ensured by a rigorous data cleaning pipeline, which
 is built based on a set of rules and a classifier that is trained on manually annotated 110K dialogue pairs
     \begin{center}\footnotesize
-        \begin{tabular}{l|c|c|c|c} 
+        \begin{tabular}{l|c|c|c|c}
 \hline & Single-Turn & Multi-Turn & Single-Turn& Multi-Turn \\
 \hline Raw dialogs & 52,708,95.5 & 26,749,365 & 63,251,887 & 28,189,952 \\
 Cleaned dialogs & 3,354,382 & 3,466,607 & 7,273,804 & 4,733,955 \\
@@ -458,24 +458,24 @@ Avg. turns & 2 & 3.86 & 2 & 3.87 \\
 \end{tabular}
 Statistics of LCCC-base (left) and LCCC-large (right)
     \end{center}
-    
+
 \end{frame}
 
 \begin{frame}{Poly-Encoder}
     Motivation: improve both the quality and speed
     \begin{itemize}
-        \item Pre-trained two transformer models \textbf{from scratch} with the same architecture and dimension as BERT-base. 
+        \item Pre-trained two transformer models \textbf{from scratch} with the same architecture and dimension as BERT-base.
         \begin{itemize}
-            \item One uses 150 million of [INPUT, LABEL] extracted from Wikipedia and Toronto Books Corpus, while the other is trained on 174 million extracted from Reddit. 
+            \item One uses 150 million of [INPUT, LABEL] extracted from Wikipedia and Toronto Books Corpus, while the other is trained on 174 million extracted from Reddit.
             \item Pre-training strategy: a \textbf{masked language model} (MLM) task + a \textbf{next-utterance prediction} task(an utterance can be composed of several sentences!)
         \end{itemize}
-        
+
         % \item The Poly-encoder architecture:
         % \begin{center}
         %     % \includegraphics[]{}
         %     \includegraphics[width=0.9\linewidth]{poly-encoder.png}
         % \end{center}
-       
+
     \end{itemize}
 \end{frame}
 
@@ -486,25 +486,25 @@ Statistics of LCCC-base (left) and LCCC-large (right)
             % \includegraphics[]{}
             \includegraphics[width=0.9\linewidth]{poly-encoder.png}
         \end{center}
-       
+
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Poly-Encoder}
     The input context, which is typically much longer than a candidate, is represented with m vectors $(y^1_{ctxt}..y^m_{ctxt})$ instead of just one as in the Bi-encoder, where m will influence the inference speed.
-    
+
     \begin{center}
-        $y_{c t x t}^{i}=\sum_{j} w_{j}^{c_{i}} h_{j} \quad$ 
-    
+        $y_{c t x t}^{i}=\sum_{j} w_{j}^{c_{i}} h_{j} \quad$
+
     where $\quad\left(w_{1}^{c_{i}}, \ldots, w_{N}^{c_{i}}\right)=\operatorname{softmax}\left(c_{i} \cdot h_{1}, . ., c_{i} \cdot h_{N}\right)$
     \end{center}
     The m context codes$(c_1, ..., c_m)$ are randomly initialized, and learnt during finetuning.
-    
+
     Finally, given m global context features, using $y_{cand_i}$ as the query: (Huge Cost)
     \begin{center}
         $y_{c t x t}=\sum_{i} w_{i} y_{c t x t}^{i} \quad$ where $\quad\left(w_{1}, . ., w_{m}\right)=\operatorname{softmax}\left(y_{c a n d_{i}} \cdot y_{c t x t}^{1}, . ., y_{c a n d_{i}} \cdot y_{c t x t}^{m}\right)$
     \end{center}
-    
+
 \end{frame}
 
 \begin{frame}{Poly-Encoder}
@@ -518,27 +518,27 @@ Statistics of LCCC-base (left) and LCCC-large (right)
         \hline split & test & \multicolumn{2}{|c|} { test } & \multicolumn{2}{c|} { test } \\
         \hline metric & R @ 1/20 & R@1/100 & MRR & R @ 1/10 & MRR \\
         \hline
-        
+
         \hline Bi-encoder & $84.8 \pm 0.1$ & $70.9 \pm 0.5$ & $78.1 \pm 0.3$ & $83.6 \pm 0.7$ & $90.1 \pm 0.4$ \\
         \hline Poly-encoder 16 & $86.3 \pm 0.3$ & $71.6 \pm 0.6$ & $78.4 \pm 0.4$ & $86.0 \pm 0.1$ & $91.5 \pm 0.1$ \\
         \hline Poly-encoder 64 & $86.5 \pm 0.2$ & $71.2 \pm 0.8$ & $78.2 \pm 0.7$ & $85.9 \pm 0.1$ & $91.5 \pm 0.1$ \\
         \hline Poly-encoder 360 & $86.8 \pm 0.1$ & $71.4 \pm 1.0$ & $78.3 \pm 0.7$ & $85.9 \pm 0.1$ & $91.5 \pm 0.0$ \\
         \hline Cross-encoder & $\mathbf{8 7 . 9 \pm 0 . 2}$ & $\mathbf{7 1 . 7 \pm 0 . 3}$ & $\mathbf{7 9 . 0 \pm 0 . 2}$ & $\mathbf{8 6 . 5 \pm 0 . 1}$ & $\mathbf{9 1 . 9 \pm 0 . 0}$ \\
         \hline
-        
+
     \end{tabular}
-    
+
   \end{center}
 \end{frame}
 
 
 \begin{frame}{Poly-Encoder}
     Average time in milliseconds to predict the next dialogue utterance from C possible candidates on ConvAI2. * are inferred.
-    
-    \begin{center}
-        
 
-    
+    \begin{center}
+
+
+
     \begin{tabular}{|c|c|c|c|c|}
 \hline & \multicolumn{4}{|c|} { Scoring time (ms) } \\
 \hline & \multicolumn{2}{|c|} { CPU } & \multicolumn{2}{c|} { GPU } \\
@@ -585,7 +585,7 @@ Motivation: a pretraining framework for conversational tasks satisfying: effecti
 \begin{frame}{ConveRT}
 Results:
 \begin{center}\footnotesize
-\begin{tabular}{lcc} 
+\begin{tabular}{lcc}
 \hline & Reddit & AmazonQA \\
 \cline { 2 - 3 } TF-IDF & 26.4 & 51.8 \\
 USE-LARGE-MAP & 47.7 & 61.9 \\
@@ -628,7 +628,7 @@ POLYAI-DUAL & $104 \mathrm{M}$ & $7 \mathrm{M}$ & $444 \mathrm{MB}$ & $118 \math
 \hline ConveRT (this work) & $16 \mathrm{M}$ & $13 \mathrm{M}$ & $116 \mathrm{MB}$ & $\mathbf{5 9 M B}$ \\
 \hline
 \end{tabular}
-    
+
 \end{center}
 \end{frame}
 
@@ -690,17 +690,17 @@ ESIM-SL & $0.963^{*}$ & $0.822^{*}$ & $0.909^{*}$ & $0.980^{*}$ & $0.623^{*}$ & 
 
 \begin{frame}{Embedding-based Retrieval in Facebook Search}
     Wikipedia:
-    
+
     Vector quantization works by dividing a large set of points (vectors) into groups having approximately the same number of points closest to them. Each group is represented by its centroid point, as in k-means and some other clustering algorithms.
-    
-    An approximate nearest neighbor search algorithm is allowed to return points, whose distance from the query is at most c times the distance from the query to its nearest points. The appeal of this approach is that, in many cases, an approximate nearest neighbor is almost as good as the exact one. 
+
+    An approximate nearest neighbor search algorithm is allowed to return points, whose distance from the query is at most c times the distance from the query to its nearest points. The appeal of this approach is that, in many cases, an approximate nearest neighbor is almost as good as the exact one.
 
 \end{frame}
 
 \begin{frame}{Embedding-based Retrieval in Facebook Search}
 How to integrate embedding KNN and Boolean matching together:
  A query can be any Boolean expression on the terms. For example, the following query would return all the people that have john and smithe in the name, and live in Seattle or Menlo Park:
- 
+
     \includegraphics[width=0.7\linewidth]{Retrieval2.png}
 
 To support $NN$, we extended the document representation to include embeddings, each with a given string key, and added a (nn <key> : radius <radius>) query operator which matches all documents whose $<$ key $>$ embedding is within the specified radius of the query embedding.
@@ -765,5 +765,3 @@ BERT $_{12}$ & 100 & & 9,282 \\
 \end{frame}
 
 \end{document}
-
-

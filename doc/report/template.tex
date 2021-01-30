@@ -52,7 +52,7 @@ In order to answer a given conversation by generating or retrieving a response, 
 
 Despite the recent success of neural approaches to natural language processing and conversational AI, building a better chatbot still faces three challenges as \cite{huang2020challenges} talked: semantics, consistency and interactiveness. First, semantics requires a dialog system to understand the intention of the dialog and identify users’ sentiment and social requires continuously. Second, consistency requires the system containing a consistent personality to win users’ trust and gain their long-term confidence. Third, interactiveness refers to the system’s ability to make interpersonal responses to meet particular social needs such as entertainment, conforming and advising. \par
 
-Recently, more efforts have been made to design better architectures such as DialogXL(\cite{shen2020dialogxl}) or to better learn the match between dialog context and candidate responses, while relatively little effort has been devoted to deploying an available production model in real environments. \par 
+Recently, more efforts have been made to design better architectures such as DialogXL(\cite{shen2020dialogxl}) or to better learn the match between dialog context and candidate responses, while relatively little effort has been devoted to deploying an available production model in real environments. \par
 
 In this paper, we explore and evaluate retrieval-based chatbots. We not only pay attention to the performance indicators of the model, but also pay attention to the inference speed of the model, which is the practical application limitation in industrial scenarios. The rest of the article is structured as follows: In Section \ref{section2}, we give the brief definition of the retrieval-based dialog and important concepts involved. In Section \ref{section3}, we describe the general architecture of the dialogue system and the NLP(Natural Language Process) algorithm involved in. In Section 4, we analyze the shortcomings of existing methods and give our own hypothetical methods and part of experimental results. In Section 5, we summarize and give the possible development trend of the current dialog system.
 
@@ -81,7 +81,7 @@ In retrieval-based methods, the search space $\Omega$ is obtained by retrieving 
 
 To measure the performance of those selection modules in real scenarios, there are several custom evaluation metrics, we mainly divide into two parts: match scores metrics, inference speed metrics.
 
-For match scores metrics, Precision and Recall are binary metrics used to evaluate systems with binary output such as binary classifiers. In the case of retrieval-based dialogue systems, the output of the system is a ranked list of responses which is similar to recommendation systems and Information Retrieval System. Here we need to evaluate the ability of the system to rank the ground-truth responses among the k best-ranked responses. we list the most common retrieval metrics widely used in evaluating retrieval-based dialogue systems: 
+For match scores metrics, Precision and Recall are binary metrics used to evaluate systems with binary output such as binary classifiers. In the case of retrieval-based dialogue systems, the output of the system is a ranked list of responses which is similar to recommendation systems and Information Retrieval System. Here we need to evaluate the ability of the system to rank the ground-truth responses among the k best-ranked responses. we list the most common retrieval metrics widely used in evaluating retrieval-based dialogue systems:
 
 \paragraph{Recallk@K} It calculates the proportion of relevant responses that are in the top-k responses for a K size candidate set, it computed as follows:
 
@@ -99,7 +99,7 @@ For match scores metrics, Precision and Recall are binary metrics used to evalua
 
 
 \begin{equation}
-\mathbf{MAP}=\frac{1}{|S|} \sum_{i=1}^{|S|} \frac{1}{m_{i}} \sum_{k=1}^{m_{i}} \text { Precision@k } \times [top_k\quad is \quad relevant] 
+\mathbf{MAP}=\frac{1}{|S|} \sum_{i=1}^{|S|} \frac{1}{m_{i}} \sum_{k=1}^{m_{i}} \text { Precision@k } \times [top_k\quad is \quad relevant]
 \end{equation}
 
 Where $S$ is the set of contexts, $m_i$ is the total number of ground-truth responses of the context $i$ and $[top_k\quad is \quad relevant]$ is an indicator function equal to 1 if the response at rank $k$ is relevant, 0 otherwise.
@@ -143,18 +143,18 @@ We show the frameworks of shallow and deep interaction networks, which is drew b
 	\label{fig:fig1}
 \end{figure}
 
-Shallow Interaction Network such as Bi-Encoder(\cite{humeau2019poly}) uses Bert(\cite{devlin2018bert}) as Encoding Network and get the Context Representation and Candidate Representation and calculate their dot product or cosine similarity as matching score while Deep Interaction Network such as Cross-Encoder(\cite{humeau2019poly}) concatenate Context and Candidate and send into Bert Interaction Network which has several transformer modules help get deep interaction to get merged Representation and use simple Multi Linear Layers as Classification Layer. \cite{urbanek2019learning} finds that the Deep Interaction Network performs better than Shallow Interaction Network while the performance gains come at a steep computational cost. As we can see, the candidate corpus is fixed in a period of time, so we can save the candidate representation locally. This will help reduce most of encoding time. Now there exists many research work on how to reduce time on candidate and input encoding and can get better interaction between input and candidate. \cite{humeau2019poly} proposed Poly-Encoder learns global rather than token level self-attention features and can faster than Cross-encoders and more accurate than Bi-encoders.They mainly use candidate representation to do global attention between context and candidate to get context representation. The SOTA(state of the art) methods today are basically based on transformer modules, that is to say they is similar to the model before. Although use Bert as Encoding Network can get a better performance, but the inference speed time will increase especially without the computing acceleration of GPU. So when in production environment, easy encoding modules such as LSTM, CNN are more popular for their low cost and superior inference speed. A typical representative is ESIM(\cite{chen2019sequential}), use Bi-LSTM with multi-head self-attention pooling, ranks the top in the DSTC7(\cite{gunasekara2019dstc7}) challenge. 
+Shallow Interaction Network such as Bi-Encoder(\cite{humeau2019poly}) uses Bert(\cite{devlin2018bert}) as Encoding Network and get the Context Representation and Candidate Representation and calculate their dot product or cosine similarity as matching score while Deep Interaction Network such as Cross-Encoder(\cite{humeau2019poly}) concatenate Context and Candidate and send into Bert Interaction Network which has several transformer modules help get deep interaction to get merged Representation and use simple Multi Linear Layers as Classification Layer. \cite{urbanek2019learning} finds that the Deep Interaction Network performs better than Shallow Interaction Network while the performance gains come at a steep computational cost. As we can see, the candidate corpus is fixed in a period of time, so we can save the candidate representation locally. This will help reduce most of encoding time. Now there exists many research work on how to reduce time on candidate and input encoding and can get better interaction between input and candidate. \cite{humeau2019poly} proposed Poly-Encoder learns global rather than token level self-attention features and can faster than Cross-encoders and more accurate than Bi-encoders.They mainly use candidate representation to do global attention between context and candidate to get context representation. The SOTA(state of the art) methods today are basically based on transformer modules, that is to say they is similar to the model before. Although use Bert as Encoding Network can get a better performance, but the inference speed time will increase especially without the computing acceleration of GPU. So when in production environment, easy encoding modules such as LSTM, CNN are more popular for their low cost and superior inference speed. A typical representative is ESIM(\cite{chen2019sequential}), use Bi-LSTM with multi-head self-attention pooling, ranks the top in the DSTC7(\cite{gunasekara2019dstc7}) challenge.
 
-For these neural-based models, they are mainly based on back-propagation algorithm such as Adam(\cite{kingma2014adam}) to update the parameters in the network. So for these models, two loss functions are mainly calculated: 
-\paragraph{Binary Cross Entropy} is a measure of the difference between two probability distributions over the same underlying set of events which is often used in classification problems. 
+For these neural-based models, they are mainly based on back-propagation algorithm such as Adam(\cite{kingma2014adam}) to update the parameters in the network. So for these models, two loss functions are mainly calculated:
+\paragraph{Binary Cross Entropy} is a measure of the difference between two probability distributions over the same underlying set of events which is often used in classification problems.
 
 \begin{equation}
 {\mathcal {L}}(X, Y)=-\left[Y \cdot \log X+\left(1-Y \right) \cdot \log \left(1-X\right)\right]
 \end{equation}
 
-and the X, Y independently means predict probability distributions and true probability distributions. 
+and the X, Y independently means predict probability distributions and true probability distributions.
 
-\paragraph{Triplet Loss} one of traditional learning-to-rank algorithms, where a baseline input is compared to a positive input and a negative input. The distance from the baseline input to the positive input is minimized, and the distance from the baseline input to the negative input is maximized. 
+\paragraph{Triplet Loss} one of traditional learning-to-rank algorithms, where a baseline input is compared to a positive input and a negative input. The distance from the baseline input to the positive input is minimized, and the distance from the baseline input to the negative input is maximized.
 
 \begin{equation}
 {\displaystyle {\mathcal {L}}\left(A,P,N\right)=\operatorname {max} \left({\operatorname{d} (\operatorname {f} \left(A\right)-\operatorname {f} \left(P\right)})-\operatorname{d}({\operatorname {f} \left(A\right)-\operatorname {f} \left(N\right)})+\alpha ,0\right)}
@@ -193,15 +193,15 @@ Clustering 1K & 0.331 & 0.542 & 0.650 & 0.782 & 49.26 \\
     \label{table1}
 \end{table}
 
-For Candidates Generation Systems, few work are researched in this area. \cite{swanson2019building} have done some research on Candidates Generation. They use three methods to generate a smaller set of candidates($N$ responses), namely: 
+For Candidates Generation Systems, few work are researched in this area. \cite{swanson2019building} have done some research on Candidates Generation. They use three methods to generate a smaller set of candidates($N$ responses), namely:
 
 \begin{itemize}
-	\item \textbf{Random Whitelist}: extract N responses randomly from response corpus 
+	\item \textbf{Random Whitelist}: extract N responses randomly from response corpus
 	\item \textbf{Frequency Whitelist}: select N common agent responses, after accounting for minor variations in capitalization, punctuation, and whitespace for responses that are sent frequently are more likely to be relevant in multiple conversations and are less likely to contain errors.
 	\item \textbf{Clustering Whitelist}: encode all agent responses using response encoder and then used k-means clustering with $k=N$ to cluster the responses and then selected the most common response from each cluster to create the whitelists to help remove many redundant responses.
 \end{itemize}
 
-They compute recall when the true response is added to the whitelist and BLEU scores between the true responses and the best suggested responses. To make the assessment more convincing, they also conducted a human evaluation. We compiled their experimental results and presented them for in-depth analysis in Table \ref{table1}. From the Table \ref{table1} left side, we can see that use frequency-based method to construct a candidate set is better than other method if we can know the all true positive response in advance. However it is unrealistic, so a clustering whitelist may be preferred more. We also can see though in recall metric frequency whitelist without gound-truth performs worse than clustering whitelist with same size, it's actual effect is similar to clustering whitelist's in the Table \ref{table1} right side. Above all, the main ideas of these methods are based on filtering out the responses with similar semantics to reduce the size of the candidate set, but we believe that these responses should not be filtered, and should be entered as part of the fine-grained ranking system for next comparison. 
+They compute recall when the true response is added to the whitelist and BLEU scores between the true responses and the best suggested responses. To make the assessment more convincing, they also conducted a human evaluation. We compiled their experimental results and presented them for in-depth analysis in Table \ref{table1}. From the Table \ref{table1} left side, we can see that use frequency-based method to construct a candidate set is better than other method if we can know the all true positive response in advance. However it is unrealistic, so a clustering whitelist may be preferred more. We also can see though in recall metric frequency whitelist without gound-truth performs worse than clustering whitelist with same size, it's actual effect is similar to clustering whitelist's in the Table \ref{table1} right side. Above all, the main ideas of these methods are based on filtering out the responses with similar semantics to reduce the size of the candidate set, but we believe that these responses should not be filtered, and should be entered as part of the fine-grained ranking system for next comparison.
 
 Except this, in challenge DSTC7, \cite{chen2019sequential} uses a fast fine-grained ranking system to generate candidate set, but the final result is very general. Considering the accuracy of their shallow interaction network ranking system is low, so we conducted some additional experiments to verify in next section.
 
@@ -217,9 +217,9 @@ We use douban dataset(\cite{wu2016sequential}), which is a popular response sele
 % See awesome Table~\ref{tab:table}.
 	\centering
 	\caption{metric of different models on douban dataset}
-\begin{tabular}{lllllll} 
+\begin{tabular}{lllllll}
 model & ACC & R1@10 & R5@10 & MRR & P@1 & MAP \\
-\hline 
+\hline
  SMN (\cite{wu2016sequential}) & - & 0.233 & 0.724 & 0.569 & 0.397 & 0.529 \\
  DUA (\cite{zhang2018modeling}) & - & 0.243 & 0.780 & 0.599 & 0.421 & 0.551 \\
  DAM (\cite{zhou2018multi}) & - & 0.254 & 0.757 & 0.601 & 0.427 & 0.550 \\
@@ -233,30 +233,30 @@ model & ACC & R1@10 & R5@10 & MRR & P@1 & MAP \\
  Bi-Encoder & 0.854 & 0.249 & 0.783 & 0.601 & 0.406 & 0.562 \\
 
 \end{tabular}
-\label{table2}	
+\label{table2}
 \end{table}
 
-The offline model is basic Bi-Encoder Model(shallow interaction network), we use Bert to be encoder which is pre-trained on the Next-Sentence and Mask Language Model tasks with large-scale dataset to obtain better word representation. In practice it has surfaced that transfer learning can have better generalization performance on most NLP tasks. 
+The offline model is basic Bi-Encoder Model(shallow interaction network), we use Bert to be encoder which is pre-trained on the Next-Sentence and Mask Language Model tasks with large-scale dataset to obtain better word representation. In practice it has surfaced that transfer learning can have better generalization performance on most NLP tasks.
 
-From table \ref{table2}, we can see that the Bi-Encoder, a shallow interaction network, performs worse than deep interaction network and it's a perfectly normal thing. Bi-Encoder is a coarse-grained selection model, it serves for Candidate Generation Systems. We are more concerned about the speed of retrieval and the recall rate of candidate set. So we continue to conduct this experiment and results in table \ref{table3}. 
+From table \ref{table2}, we can see that the Bi-Encoder, a shallow interaction network, performs worse than deep interaction network and it's a perfectly normal thing. Bi-Encoder is a coarse-grained selection model, it serves for Candidate Generation Systems. We are more concerned about the speed of retrieval and the recall rate of candidate set. So we continue to conduct this experiment and results in table \ref{table3}.
 
 \begin{table}[htb]
 	\caption{Recall for candidate sets with different corpus}
 	\centering
 	\begin{tabular}{lllllllll}
 	\hline
-	\text { K: size} & \text { R1@K } & \text { R2@K } & \text { R4@K } & \text { R8@K } & \text { R16@K } & \text { R32@K } & \text { R64@K } & \text { R128@K }  \\ 
+	\text { K: size} & \text { R1@K } & \text { R2@K } & \text { R4@K } & \text { R8@K } & \text { R16@K } & \text { R32@K } & \text { R64@K } & \text { R128@K }  \\
 	\hline
-	1M & 0.67 \% & 1.01 \% & 1.57 \% & 2.34 \% & 3.45 \% & 5.00 
-	\% & 7.15 \% & 10.04 \%  \\ 
+	1M & 0.67 \% & 1.01 \% & 1.57 \% & 2.34 \% & 3.45 \% & 5.00
+	\% & 7.15 \% & 10.04 \%  \\
 	\hline
 	500K & 0.89 \% & 1.44 \% & 2.19 \% & 3.26 \% & 4.76 \% & 6.84 \% & 9.66 \% & 13.45 \% \\
-	\hline 
-	\text { K:size} & \text { R256@K } & \text { R512@K } & \text { R1024@K } & \text { R2048@K } & \text { R4096@K } & \text { R5000@K } & \text { R8192@K } &   \\ 
-	\hline 
+	\hline
+	\text { K:size} & \text { R256@K } & \text { R512@K } & \text { R1024@K } & \text { R2048@K } & \text { R4096@K } & \text { R5000@K } & \text { R8192@K } &   \\
+	\hline
 	1M & 13.93\% & 19.05\%	& 25.49\%	& 33.58\% &43.34\%  & - & -
 	\\ \hline
-	500K & 18.48\%	& 24.84\%&	32.88\% &	42.59\% & 53.77\%	&57.15\%&	65.74\% \\ 
+	500K & 18.48\%	& 24.84\%&	32.88\% &	42.59\% & 53.77\%	&57.15\%&	65.74\% \\
 	\end{tabular}
 	\label{table3}
 \end{table}
@@ -291,13 +291,13 @@ If we want to continue to apply the retrieval-based dialog system into productio
 
 \section{Conclusion}
 
-At present, we have discussed a lot about retrieval-based dialog systems, but do not give an end-to-end neural-based solution, because this is obviously not feasible on large dataset. If you need to build an end-to-end solution, a better approach is to choose a generation-based dialog system model, but we still cannot control the generated content at this stage, so whether the generated content is legally required and whether it meets the bottom line of society still needs follow-up processing. It is due to learning a lot of vulgar conversations on the Internet, which leads to the final failure of Microsoft project Tay, and should arouse our vigilance. 
+At present, we have discussed a lot about retrieval-based dialog systems, but do not give an end-to-end neural-based solution, because this is obviously not feasible on large dataset. If you need to build an end-to-end solution, a better approach is to choose a generation-based dialog system model, but we still cannot control the generated content at this stage, so whether the generated content is legally required and whether it meets the bottom line of society still needs follow-up processing. It is due to learning a lot of vulgar conversations on the Internet, which leads to the final failure of Microsoft project Tay, and should arouse our vigilance.
 
 In the background of our above system, we default that all conversations are pure text, but now, with the popularity of emoji, more and more stickers appear in our usual conversations. In addition, there are various Multi-modal information, and even multi-lingual dialog, have brought great difficulties to the current dialog system, but at the same time it is also worth pondering over what a more complete dialog system should do. At present, \cite{gao2020learning} do a research on retrieving stickers in the dialogue, but their tasks are too simple to be practically used in production scenarios. A dialog system with better robustness must be our next step.
 
 As a bridge between humans and machines, the dialog system can be easily combined with other tasks, such as information retrieval systems, recommendation systems, language assistants, etc. With the continuous development of the dialogue system, we believe that its ultimate success will cause a huge change in human life style.
 
 \bibliographystyle{unsrtnat}
-\bibliography{references}  
+\bibliography{references}
 
 \end{document}
