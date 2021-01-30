@@ -18,6 +18,6 @@ CUDA_VISIBLE_DEVICES=1 \
   --valid_batch_size 3 \
   --world_size 3 \
   --num_worker 2 \
-  --seed 42 \
+  --seed 42
 #  --eval_before_start \
 #  --best_acc 0.81504 \
